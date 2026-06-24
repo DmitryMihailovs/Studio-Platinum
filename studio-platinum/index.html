@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>STUDIO PLATINUM | Дизайн мебели</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant:wght@400;600&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <nav class="container">
+      <a href="#hero" class="logo">STUDIO PLATINUM</a>
+      <div class="nav-actions">
+        <ul class="menu">
+          <li><a href="#works" id="nav-works">Портфолио</a></li>
+          <li><a href="#about" id="nav-about">Обо мне</a></li>
+          <li><a href="#contact" id="nav-contact">Контакты</a></li>
+        </ul>
+        <button id="language-toggle" class="language-toggle" type="button" aria-label="Переключить язык">RU</button>
+      </div>
+    </nav>
+  </header>
+
+  <section class="hero" id="hero">
+    <img src="images/hero.jpg" alt="Дизайнер" class="hero-img">
+    <div class="hero-grid">
+      <div class="hero-copy">
+        <h1 id="hero-title">Мебель как искусство</h1>
+        <div class="hero-actions">
+          <a href="#works" class="btn btn-accent" id="hero-button">Перейти к портфолио</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="works" class="container">
+    <h2 id="works-title">Портфолио</h2>
+    <p id="works-description" class="works-description"></p>
+    <div id="works-grid" class="works-grid">
+      <!-- Netlify CMS подставит работы сюда -->
+    </div>
+  </section>
+
+  <section id="design-idea" class="container design-idea">
+    <div class="design-idea-grid">
+      <div class="design-idea-copy">
+        <h2 id="design-title">Генератор идеи мебели</h2>
+        <p id="design-description">Опишите желаемый комод или шкаф, и система покажет примерное визуальное решение для вашего проекта.</p>
+        <form id="design-form" class="design-form">
+          <label class="design-label" for="design-input" id="design-input-label">Описание мебели</label>
+          <textarea id="design-input" class="design-input" rows="4" placeholder="Например: комод из темного дерева с открытыми нишами и латунными ручками"></textarea>
+          <div class="design-actions">
+            <div>
+              <label class="design-label" for="design-type" id="design-type-label">Тип мебели</label>
+              <select id="design-type" class="design-select">
+                <option value="dresser" id="design-option-dresser">Комод</option>
+                <option value="wardrobe" id="design-option-wardrobe">Шкаф</option>
+                <option value="shelf" id="design-option-shelf">Стеллаж</option>
+              </select>
+            </div>
+            <button type="submit" class="btn btn-accent" id="design-button">Получить пример</button>
+          </div>
+        </form>
+      </div>
+      <div class="design-preview">
+        <div class="design-preview-card">
+          <div class="design-preview-image" id="design-image">
+            <span id="design-result-text">Примерное визуальное решение будет здесь</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="about" class="container about">
+    <div class="about-grid">
+      <img src="images/about.jpg" alt="Дизайнер" class="about-img">
+      <div class="about-text">
+        <h2 id="about-title">Обо мне</h2>
+        <p id="about-text-1">Я создаю премиальную мебель на заказ и реализую проекты различного уровня сложности — от изящных авторских форм до полного меблирования интерьеров. Каждый объект разрабатывается с учетом стиля, архитектуры и потребностей клиента.</p>
+        <p id="about-text-2">Мой подход сочетает выразительную эстетику, четкую конструктивность и высокое качество исполнения. Я создаю уникальные изделия и мебельные решения, которые делают пространство завершенным и запоминающимся.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="contact" class="container contact">
+    <h2 id="contact-title">Контакты</h2>
+    <div class="contact-actions fade-in">
+      <a href="https://wa.me/37128322206" class="btn btn-accent">WhatsApp</a>
+      <a href="https://t.me/+37128322206" class="btn">Telegram</a>
+      <a href="https://www.facebook.com/share/196WxomGJg/" class="btn">Facebook</a>
+      <a href="https://www.instagram.com/_studioplatinum_?utm_source=qr&igsh=MXBlaGIxaXY1MjA1YQ%3D%3D" class="btn">Instagram</a>
+    </div>
+    <p class="contact-info"><span id="contact-phone-label">Тел:</span> +371 28 322 206<br><span id="contact-email-label">Email:</span> <a href="mailto:info@studioplatinum.lv">info@studioplatinum.lv</a></p>
+  </section>
+
+  <footer><p>© 2026 SIA STUDIO PLATINUM</p></footer>
+
+  <div id="modal" class="modal">
+    <span class="modal-close" aria-label="Close">&times;</span>
+    <button class="modal-nav modal-prev" aria-label="Previous work">‹</button>
+    <button class="modal-nav modal-next" aria-label="Next work">›</button>
+    <div class="modal-gallery">
+      <img class="modal-content" id="modal-img">
+      <div id="modal-thumbnails" class="modal-thumbnails"></div>
+    </div>
+    <div class="modal-footer">
+      <div id="modal-caption"></div>
+      <div id="modal-counter" class="modal-counter"></div>
+    </div>
+  </div>
+
+  <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
