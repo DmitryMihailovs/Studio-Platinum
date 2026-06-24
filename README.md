@@ -1,2 +1,0 @@
-# Studio-Platinum
-Studio Platinum
