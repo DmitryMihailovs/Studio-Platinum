@@ -16,13 +16,14 @@ import {
   AlertCircle,
   Server
 } from 'lucide-react';
-import { PortfolioItem, TranslationSet } from '../types';
+import { PortfolioItem, TranslationSet, Language } from '../types';
 import { supabase, isSupabaseConfigured, fetchAllPortfolioAdmin, uploadPortfolioImage, fetchCategories, createCategory, updateCategory, deleteCategory, CategoryRecord } from '../lib/supabase';
 
 interface AdminPanelProps {
   isOpen: boolean;
   works: PortfolioItem[];
   t: TranslationSet;
+  currentLanguage?: Language;
   onClose: () => void;
   onRefreshWorks: () => void;
 }
@@ -31,9 +32,49 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
   isOpen,
   works,
   t,
+  currentLanguage = 'ru',
   onClose,
   onRefreshWorks,
 }) => {
+  const lang = currentLanguage || 'ru';
+  const recoveryCopy = {
+    ru: {
+      title: 'Восстановление пароля',
+      subtitle: 'Studio Platinum — Безопасный сброс доступа',
+      emailLabel: 'Email администратора',
+      submitBtn: 'Отправить ссылку для сброса',
+      sendingBtn: 'Отправка...',
+      successTitle: 'Инструкции отправлены!',
+      successDesc: 'Если аккаунт с таким email существует, мы отправили инструкции по восстановлению доступа. Пожалуйста, проверьте папку «Входящие» и «Спам».',
+      returnLogin: 'Вернуться к входу',
+      cancelLogin: 'Отмена и возврат к входу',
+      defaultError: 'Не удалось отправить запрос на восстановление пароля. Пожалуйста, проверьте соединение и попробуйте еще раз.',
+    },
+    lv: {
+      title: 'Paroles atjaunošana',
+      subtitle: 'Studio Platinum — Droša piekļuves atjaunošana',
+      emailLabel: 'Administratora e-pasts',
+      submitBtn: 'Nosūtīt atjaunošanas saiti',
+      sendingBtn: 'Sūta...',
+      successTitle: 'Norādījumi nosūtīti!',
+      successDesc: 'Ja konts ar šo e-pastu pastāv, mēs esam nosūtījuši piekļuves atjaunošanas norādījumus. Lūdzu, pārbaudiet savu iesūtni un mēstuļu (spam) mapes.',
+      returnLogin: 'Atgriezties pie pieteikšanās',
+      cancelLogin: 'Atcelt un atgriezties',
+      defaultError: 'Neizdevās nosūtīt paroles atjaunošanas pieprasījumu. Lūdzu, mēģiniet vēlreiz.',
+    },
+    en: {
+      title: 'Password Recovery',
+      subtitle: 'Studio Platinum — Secure Access Recovery',
+      emailLabel: 'Administrator Email',
+      submitBtn: 'Send Recovery Link',
+      sendingBtn: 'Sending...',
+      successTitle: 'Recovery Instructions Sent!',
+      successDesc: 'If an account exists with this email, we have sent recovery instructions. Please check your inbox and spam folder.',
+      returnLogin: 'Return to Sign In',
+      cancelLogin: 'Cancel & Return to Sign In',
+      defaultError: 'Failed to send password recovery request. Please check your network connection and try again.',
+    }
+  }[lang];
   const [session, setSession] = useState<any>(null);
   const [isAdminAuthorized, setIsAdminAuthorized] = useState<boolean | null>(null);
   const [checkingAdmin, setCheckingAdmin] = useState(false);
@@ -239,12 +280,12 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
 
   const handlePasswordRecovery = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!supabase || !recoveryEmail.trim()) return;
+    if (!supabase || !recoveryEmail.trim() || recoveryLoading) return;
     setRecoveryLoading(true);
     setRecoveryError(null);
 
     try {
-      const { error } = await supabase.auth.resetPasswordForEmail(recoveryEmail.trim(), {
+      const { data, error } = await supabase.auth.resetPasswordForEmail(recoveryEmail.trim(), {
         redirectTo: new URL('/reset-password', window.location.origin).toString(),
       });
 
@@ -254,7 +295,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
 
       setRecoverySuccess(true);
     } catch (err: any) {
-      setRecoveryError(err.message || 'Failed to send password recovery email.');
+      setRecoveryError(err.message || recoveryCopy.defaultError);
     } finally {
       setRecoveryLoading(false);
     }
@@ -577,10 +618,10 @@ ON CONFLICT (email) DO NOTHING;`}
 
               <div className="space-y-2">
                 <h4 className="text-3xl font-serif-cormorant font-semibold text-white tracking-wide">
-                  {isForgotPasswordMode ? 'Password Recovery' : 'Administrator Portal'}
+                  {isForgotPasswordMode ? recoveryCopy.title : 'Administrator Portal'}
                 </h4>
                 <p className="text-xs text-white/60 font-light tracking-wider uppercase">
-                  {isForgotPasswordMode ? 'Studio Platinum Secure Reset' : 'Studio Platinum Secure Access'}
+                  {isForgotPasswordMode ? recoveryCopy.subtitle : 'Studio Platinum Secure Access'}
                 </p>
               </div>
 
@@ -590,17 +631,17 @@ ON CONFLICT (email) DO NOTHING;`}
                     <div className="p-5 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs space-y-3">
                       <div className="flex items-center gap-2 font-medium">
                         <CheckCircle2 className="w-4 h-4 flex-shrink-0" />
-                        <span>Recovery instructions sent! Check your email inbox.</span>
+                        <span>{recoveryCopy.successTitle}</span>
                       </div>
                       <p className="text-white/70 font-light">
-                        We have sent a secure password reset link to <span className="text-[#FFB86B] font-mono">{recoveryEmail}</span>.
+                        {recoveryCopy.successDesc}
                       </p>
                       <button
                         type="button"
                         onClick={() => { setIsForgotPasswordMode(false); setRecoverySuccess(false); setRecoveryEmail(''); }}
                         className="btn-luxury text-xs py-2.5 px-6 w-full mt-2 cursor-pointer"
                       >
-                        Return to Sign In
+                        {recoveryCopy.returnLogin}
                       </button>
                     </div>
                   ) : (
@@ -614,7 +655,7 @@ ON CONFLICT (email) DO NOTHING;`}
 
                       <div className="space-y-1.5">
                         <label className="block text-xs uppercase tracking-wider text-white/80 font-medium">
-                          Administrator Email
+                          {recoveryCopy.emailLabel}
                         </label>
                         <input
                           type="email"
@@ -629,13 +670,16 @@ ON CONFLICT (email) DO NOTHING;`}
                       <button
                         type="submit"
                         disabled={recoveryLoading}
-                        className="btn-luxury btn-accent-luxury w-full py-4 text-xs font-semibold shadow-xl cursor-pointer"
+                        className="btn-luxury btn-accent-luxury w-full py-4 text-xs font-semibold shadow-xl cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         <span className="relative z-10 flex items-center justify-center gap-2">
                           {recoveryLoading ? (
-                            <span className="animate-spin rounded-full h-4 w-4 border-2 border-[#FFB86B] border-t-transparent" />
+                            <>
+                              <span className="animate-spin rounded-full h-4 w-4 border-2 border-[#FFB86B] border-t-transparent" />
+                              <span>{recoveryCopy.sendingBtn}</span>
+                            </>
                           ) : (
-                            <span>Send Recovery Link</span>
+                            <span>{recoveryCopy.submitBtn}</span>
                           )}
                         </span>
                       </button>
@@ -646,7 +690,7 @@ ON CONFLICT (email) DO NOTHING;`}
                           onClick={() => { setIsForgotPasswordMode(false); setRecoveryError(null); }}
                           className="text-xs text-white/60 hover:text-white transition-colors cursor-pointer"
                         >
-                          Cancel & Return to Sign In
+                          {recoveryCopy.cancelLogin}
                         </button>
                       </div>
                     </form>

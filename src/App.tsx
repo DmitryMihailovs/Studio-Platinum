@@ -119,6 +119,7 @@ export const App: React.FC = () => {
             isOpen={true}
             works={works}
             t={t}
+            currentLanguage={currentLanguage}
             onClose={() => {
               window.history.pushState({}, '', '/');
               setIsAdminRoute(false);
