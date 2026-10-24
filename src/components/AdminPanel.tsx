@@ -42,6 +42,12 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
   const [authLoading, setAuthLoading] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
 
+  const [isForgotPasswordMode, setIsForgotPasswordMode] = useState(false);
+  const [recoveryEmail, setRecoveryEmail] = useState('');
+  const [recoveryLoading, setRecoveryLoading] = useState(false);
+  const [recoverySuccess, setRecoverySuccess] = useState(false);
+  const [recoveryError, setRecoveryError] = useState<string | null>(null);
+
   const [adminItems, setAdminItems] = useState<any[]>([]);
   const [loadingItems, setLoadingItems] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
@@ -230,6 +236,29 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
     }
   };
 
+
+  const handlePasswordRecovery = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!supabase || !recoveryEmail.trim()) return;
+    setRecoveryLoading(true);
+    setRecoveryError(null);
+
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(recoveryEmail.trim(), {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      setRecoverySuccess(true);
+    } catch (err: any) {
+      setRecoveryError(err.message || 'Failed to send password recovery email.');
+    } finally {
+      setRecoveryLoading(false);
+    }
+  };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -548,63 +577,145 @@ ON CONFLICT (email) DO NOTHING;`}
 
               <div className="space-y-2">
                 <h4 className="text-3xl font-serif-cormorant font-semibold text-white tracking-wide">
-                  Administrator Portal
+                  {isForgotPasswordMode ? 'Password Recovery' : 'Administrator Portal'}
                 </h4>
                 <p className="text-xs text-white/60 font-light tracking-wider uppercase">
-                  Studio Platinum Secure Access
+                  {isForgotPasswordMode ? 'Studio Platinum Secure Reset' : 'Studio Platinum Secure Access'}
                 </p>
               </div>
 
-              {authError && (
-                <div className="p-4 rounded-2xl bg-red-500/10 border border-red-500/20 text-red-300 text-xs text-left flex items-start gap-3">
-                  <AlertCircle className="w-4 h-4 text-red-400 flex-shrink-0 mt-0.5" />
-                  <span>{authError}</span>
+              {isForgotPasswordMode ? (
+                <div className="space-y-6 text-left">
+                  {recoverySuccess ? (
+                    <div className="p-5 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs space-y-3">
+                      <div className="flex items-center gap-2 font-medium">
+                        <CheckCircle2 className="w-4 h-4 flex-shrink-0" />
+                        <span>Recovery instructions sent! Check your email inbox.</span>
+                      </div>
+                      <p className="text-white/70 font-light">
+                        We have sent a secure password reset link to <span className="text-[#FFB86B] font-mono">{recoveryEmail}</span>.
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() => { setIsForgotPasswordMode(false); setRecoverySuccess(false); setRecoveryEmail(''); }}
+                        className="btn-luxury text-xs py-2.5 px-6 w-full mt-2 cursor-pointer"
+                      >
+                        Return to Sign In
+                      </button>
+                    </div>
+                  ) : (
+                    <form onSubmit={handlePasswordRecovery} className="space-y-5">
+                      {recoveryError && (
+                        <div className="p-4 rounded-2xl bg-red-500/10 border border-red-500/20 text-red-300 text-xs flex items-start gap-3">
+                          <AlertCircle className="w-4 h-4 text-red-400 flex-shrink-0 mt-0.5" />
+                          <span>{recoveryError}</span>
+                        </div>
+                      )}
+
+                      <div className="space-y-1.5">
+                        <label className="block text-xs uppercase tracking-wider text-white/80 font-medium">
+                          Administrator Email
+                        </label>
+                        <input
+                          type="email"
+                          value={recoveryEmail}
+                          onChange={(e) => setRecoveryEmail(e.target.value)}
+                          placeholder="admin@studioplatinum.lv"
+                          className="w-full bg-white/5 border border-white/15 focus:border-[#FFB86B] rounded-2xl px-4 py-3.5 text-sm text-white placeholder-white/30 focus:outline-none transition-all"
+                          required
+                        />
+                      </div>
+
+                      <button
+                        type="submit"
+                        disabled={recoveryLoading}
+                        className="btn-luxury btn-accent-luxury w-full py-4 text-xs font-semibold shadow-xl cursor-pointer"
+                      >
+                        <span className="relative z-10 flex items-center justify-center gap-2">
+                          {recoveryLoading ? (
+                            <span className="animate-spin rounded-full h-4 w-4 border-2 border-[#FFB86B] border-t-transparent" />
+                          ) : (
+                            <span>Send Recovery Link</span>
+                          )}
+                        </span>
+                      </button>
+
+                      <div className="text-center pt-2">
+                        <button
+                          type="button"
+                          onClick={() => { setIsForgotPasswordMode(false); setRecoveryError(null); }}
+                          className="text-xs text-white/60 hover:text-white transition-colors cursor-pointer"
+                        >
+                          Cancel & Return to Sign In
+                        </button>
+                      </div>
+                    </form>
+                  )}
                 </div>
+              ) : (
+                <>
+                  {authError && (
+                    <div className="p-4 rounded-2xl bg-red-500/10 border border-red-500/20 text-red-300 text-xs text-left flex items-start gap-3">
+                      <AlertCircle className="w-4 h-4 text-red-400 flex-shrink-0 mt-0.5" />
+                      <span>{authError}</span>
+                    </div>
+                  )}
+
+                  <form onSubmit={handleLogin} className="space-y-5 text-left">
+                    <div className="space-y-1.5">
+                      <label className="block text-xs uppercase tracking-wider text-white/80 font-medium">
+                        Administrator Email / Username
+                      </label>
+                      <input
+                        type="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        placeholder="admin@studioplatinum.lv"
+                        className="w-full bg-white/5 border border-white/15 focus:border-[#FFB86B] rounded-2xl px-4 py-3.5 text-sm text-white placeholder-white/30 focus:outline-none transition-all"
+                        required
+                      />
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label className="block text-xs uppercase tracking-wider text-white/80 font-medium">
+                        Password
+                      </label>
+                      <input
+                        type="password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        placeholder="••••••••••••"
+                        className="w-full bg-white/5 border border-white/15 focus:border-[#FFB86B] rounded-2xl px-4 py-3.5 text-sm text-white placeholder-white/30 focus:outline-none transition-all"
+                        required
+                      />
+                    </div>
+
+                    <div className="flex items-center justify-end text-xs pt-0.5">
+                      <button
+                        type="button"
+                        onClick={() => { setIsForgotPasswordMode(true); setAuthError(null); }}
+                        className="text-[#FFB86B] hover:underline cursor-pointer"
+                      >
+                        Forgot password?
+                      </button>
+                    </div>
+
+                    <button
+                      type="submit"
+                      disabled={authLoading}
+                      className="btn-luxury btn-accent-luxury w-full py-4 text-xs font-semibold shadow-xl cursor-pointer"
+                    >
+                      <span className="relative z-10 flex items-center justify-center gap-2">
+                        {authLoading ? (
+                          <span className="animate-spin rounded-full h-4 w-4 border-2 border-[#FFB86B] border-t-transparent" />
+                        ) : (
+                          <span>Sign In to Dashboard</span>
+                        )}
+                      </span>
+                    </button>
+                  </form>
+                </>
               )}
-
-              <form onSubmit={handleLogin} className="space-y-5 text-left">
-                <div className="space-y-1.5">
-                  <label className="block text-xs uppercase tracking-wider text-white/80 font-medium">
-                    Administrator Email / Username
-                  </label>
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="admin@studioplatinum.lv"
-                    className="w-full bg-white/5 border border-white/15 focus:border-[#FFB86B] rounded-2xl px-4 py-3.5 text-sm text-white placeholder-white/30 focus:outline-none transition-all"
-                    required
-                  />
-                </div>
-
-                <div className="space-y-1.5">
-                  <label className="block text-xs uppercase tracking-wider text-white/80 font-medium">
-                    Password
-                  </label>
-                  <input
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="••••••••••••"
-                    className="w-full bg-white/5 border border-white/15 focus:border-[#FFB86B] rounded-2xl px-4 py-3.5 text-sm text-white placeholder-white/30 focus:outline-none transition-all"
-                    required
-                  />
-                </div>
-
-                <button
-                  type="submit"
-                  disabled={authLoading}
-                  className="btn-luxury btn-accent-luxury w-full py-4 text-xs font-semibold shadow-xl cursor-pointer"
-                >
-                  <span className="relative z-10 flex items-center justify-center gap-2">
-                    {authLoading ? (
-                      <span className="animate-spin rounded-full h-4 w-4 border-2 border-[#FFB86B] border-t-transparent" />
-                    ) : (
-                      <span>Sign In to Dashboard</span>
-                    )}
-                  </span>
-                </button>
-              </form>
             </div>
           ) : (
             <div className="space-y-8 animate-fadeIn">

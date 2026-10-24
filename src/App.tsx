@@ -12,6 +12,7 @@ import { ContactSection } from './components/ContactSection';
 import { Footer } from './components/Footer';
 import { LightboxModal } from './components/LightboxModal';
 import { AdminPanel } from './components/AdminPanel';
+import { ResetPasswordView } from './components/ResetPasswordView';
 
 export const App: React.FC = () => {
   // Language state
@@ -30,6 +31,11 @@ export const App: React.FC = () => {
     localStorage.setItem('language', currentLanguage);
   }, [currentLanguage, t.pageTitle]);
 
+  // Check if URL is /reset-password
+  const [isResetPasswordRoute, setIsResetPasswordRoute] = useState<boolean>(() => {
+    return window.location.pathname.includes('/reset-password') || window.location.hash.includes('type=recovery');
+  });
+
   // Check if URL is /admin/login or /admin
   const [isAdminRoute, setIsAdminRoute] = useState<boolean>(() => {
     return window.location.pathname.includes('/admin');
@@ -37,6 +43,7 @@ export const App: React.FC = () => {
 
   useEffect(() => {
     const handlePopState = () => {
+      setIsResetPasswordRoute(window.location.pathname.includes('/reset-password') || window.location.hash.includes('type=recovery'));
       setIsAdminRoute(window.location.pathname.includes('/admin'));
     };
     window.addEventListener('popstate', handlePopState);
@@ -75,6 +82,20 @@ export const App: React.FC = () => {
     const elem = document.getElementById('configurator');
     if (elem) elem.scrollIntoView({ behavior: 'smooth' });
   };
+
+  // If user navigated to /reset-password, render password recovery view
+  if (isResetPasswordRoute) {
+    return (
+      <ResetPasswordView
+        currentLanguage={currentLanguage}
+        onBackToLogin={() => {
+          window.history.pushState({}, '', '/admin');
+          setIsResetPasswordRoute(false);
+          setIsAdminRoute(true);
+        }}
+      />
+    );
+  }
 
   // If user navigated to /admin, render the secure AdminPanel view directly
   if (isAdminRoute) {
