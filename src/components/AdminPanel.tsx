@@ -245,7 +245,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
 
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(recoveryEmail.trim(), {
-        redirectTo: `${window.location.origin}/reset-password`,
+        redirectTo: new URL('/reset-password', window.location.origin).toString(),
       });
 
       if (error) {
