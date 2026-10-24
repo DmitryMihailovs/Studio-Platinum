@@ -1,0 +1,93 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --bg: #110f13;
+    --text: #E8E8E8;
+    --muted: #A9A3B1;
+    --accent: #FFB86B;
+    --accent-soft: rgba(255, 184, 107, 0.18);
+    --card: #1F1C24;
+    --surface: rgba(255, 255, 255, 0.05);
+  }
+
+  body {
+    background-color: var(--bg);
+    background-image: 
+      radial-gradient(circle at top left, rgba(255, 184, 107, 0.12), transparent 28%),
+      radial-gradient(circle at 80% 12%, rgba(255, 255, 255, 0.08), transparent 30%);
+    color: var(--text);
+  }
+
+  h1, h2, h3, .font-serif-cormorant {
+    font-family: 'Cormorant', serif;
+  }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #110f13;
+}
+::-webkit-scrollbar-thumb {
+  background: #2b2732;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #FFB86B;
+}
+
+/* Luxury Glow Utility Classes */
+.btn-luxury {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.875rem 2.25rem;
+  border-radius: 9999px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  transition: all 0.35s ease;
+  overflow: hidden;
+  backdrop-filter: blur(6px);
+}
+
+.btn-luxury::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 100%;
+  background: linear-gradient(90deg, rgba(255,184,107,0.24), rgba(255,184,107,0.08));
+  transition: width 0.35s ease;
+  z-index: 0;
+  border-radius: 9999px;
+}
+
+.btn-luxury:hover {
+  color: #110f13;
+  border-color: transparent;
+  letter-spacing: 0.18em;
+}
+
+.btn-luxury:hover::before {
+  width: 100%;
+}
+
+.btn-accent-luxury {
+  border-color: transparent;
+  color: var(--accent);
+  background: rgba(255, 184, 107, 0.12);
+}
+
+.btn-accent-luxury:hover {
+  background: rgba(255, 184, 107, 0.22);
+}
